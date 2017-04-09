@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 /*global process,require*/
 
 "use strict";
