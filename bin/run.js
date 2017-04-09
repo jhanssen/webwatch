@@ -11,7 +11,6 @@ const readdir = promisify(fs.readdir);
 const stat = promisify(fs.stat);
 const Configstore = require("configstore");
 const confurls = new Configstore("webwatch-urls");
-const confcfg = new Configstore("webwatch-cfg");
 const confpages = new Configstore("webwatch-pages");
 
 function notify(title, body, data)
