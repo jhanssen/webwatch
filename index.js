@@ -9,7 +9,7 @@ const argv = minimist(process.argv.slice(2));
 
 function syntax()
 {
-    console.log("webwatch [--add|--cfg]");
+    console.log("webwatch [--add|--remove|--show|--cfg]");
     console.log("  --add: adds a url to watch");
     console.log("    --url=value (required): url to watch");
     console.log("    --name=value (required): name to register as");
