@@ -1,0 +1,33 @@
+{
+  "name": "webwatch",
+  "version": "1.0.0",
+  "description": "watch web pages",
+  "main": "index.js",
+  "scripts": {
+    "start": "node ./index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jhanssen/webwatch.git"
+  },
+  "keywords": [
+    "watch",
+    "web",
+    "page",
+    "url",
+    "html"
+  ],
+  "author": "Jan Erik Hanssen",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/jhanssen/webwatch/issues"
+  },
+  "homepage": "https://github.com/jhanssen/webwatch#readme",
+  "dependencies": {
+    "cheerio": "^0.22.0",
+    "configstore": "^3.0.0",
+    "minimist": "^1.2.0",
+    "pushover-notifications": "^0.2.4",
+    "request": "^2.81.0"
+  }
+}
