@@ -5,6 +5,7 @@
 const request = require("request-promise-native");
 const cheerio = require("cheerio");
 const promisify = require("es6-promisify");
+const jsdiff = require("diff");
 const fs = require("fs");
 const readdir = promisify(fs.readdir);
 const stat = promisify(fs.stat);
@@ -13,14 +14,14 @@ const confurls = new Configstore("webwatch-urls");
 const confcfg = new Configstore("webwatch-cfg");
 const confpages = new Configstore("webwatch-pages");
 
-function notify(title, body)
+function notify(title, body, data)
 {
     const runNotify = notif => {
         try {
             const n = require(notif);
-            n.notify(title, body);
+            n.notify(title, body, data).then(() => {}).catch(err => { console.error(err); });
         } catch (err) {
-            console.log("failed to run notification", err);
+            console.error("failed to run notification", err);
         }
     };
 
@@ -54,14 +55,35 @@ function compare(name, url, $, cfg)
     const html = $.html();
     if (!page) {
         // assume not set yet
+        if (cfg.verbose) {
+            console.log("page doesn't exist, saving...");
+        }
         confpages.set(name, html);
     } else {
-        console.log("html", html);
-        const diff = page != html;
-        if (diff || cfg.notify) {
-            notify(`${name} changed`, `${name} has changed: ${url.url}`);
-            if (diff)
+        if (cfg.verbose) {
+            console.log("html", html);
+            console.log("previous", page);
+        }
+        const changed = page != html;
+        if (changed || cfg.notify) {
+            const diff = jsdiff.diffLines(page, html);
+            let ret = "";
+            for (let idx = 0; idx < diff.length; ++idx) {
+                const d = diff[idx];
+                if (d.added)
+                    ret += "+ " + d.value;
+                else if (d.removed)
+                    ret += "- " + d.value;
+            }
+            if (cfg.verbose) {
+                console.log("changed:");
+                console.log(ret);
+            }
+            notify(`${name} changed`, `${name} has changed: ${url.url}\n` + ret, { cfg: cfg, url: url });
+            if (changed)
                 confpages.set(name, html);
+        } else if (cfg.verbose) {
+            console.log("no changes");
         }
     }
 }
@@ -81,6 +103,9 @@ function makeCfg(argv) {
     let cfg = {};
     if (argv.notify) {
         cfg.notify = true;
+    }
+    if (argv.verbose) {
+        cfg.verbose = true;
     }
     return cfg;
 }

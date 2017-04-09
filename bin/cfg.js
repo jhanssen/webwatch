@@ -6,7 +6,7 @@ module.exports = argv => {
     const notification = argv.notification;
     if (notification) {
         try {
-            const n = require(`../notification/${notification}`);
+            const n = require(`../notifications/${notification}`);
             if (n)
                 n.cfg(argv);
         } catch (e) {
