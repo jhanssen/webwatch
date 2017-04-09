@@ -17,12 +17,12 @@ const cache = {
     _cache: {},
     get: function(url) {
         return new Promise((resolve, reject) => {
-            if (url.url in cache._cache) {
-                resolve(cheerio.load(cache._cache[url.url]));
+            if (url in cache._cache) {
+                resolve(cheerio.load(cache._cache[url]));
                 return;
             }
-            request({ uri: url.url })
-                .then(body => { cache._cache[url.url] = body; resolve(cheerio.load(body)); })
+            request({ uri: url })
+                .then(body => { cache._cache[url] = body; resolve(cheerio.load(body)); })
                 .catch(err => { reject(err); });
         });
     }
@@ -105,7 +105,7 @@ function compare(name, url, $, cfg)
 
 function run(name, url, cfg) {
     return new Promise((resolve, reject) => {
-        cache.get(url).then($ => {
+        cache.get(url.url).then($ => {
             if (url.selector) {
                 if (typeof url.selector === "string") {
                     $ = $(url.selector);
