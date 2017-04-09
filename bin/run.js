@@ -30,77 +30,115 @@ const cache = {
 
 function notify(title, body, data)
 {
-    const runNotify = notif => {
-        try {
-            const n = require(notif);
-            n.notify(title, body, data).then(() => {}).catch(err => { console.error(err); });
-        } catch (err) {
-            console.error("failed to run notification", err);
-        }
-    };
-
-    readdir("notifications").then(files => {
-        let promises = [];
-        for (let idx = 0; idx < files.length; ++idx) {
-            promises.push(stat(`notifications/${files[idx]}`));
-        }
-        Promise.all(promises).then(stats => {
-            for (let idx = 0; idx < files.length; ++idx) {
-                if (stats[idx].isDirectory() || (stats[idx].isFile() && files[idx].substr(-3) == ".js")) {
-                    runNotify(`../notifications/${files[idx]}`);
-                }
+    return new Promise((resolve, reject) => {
+        let remaining = 0;
+        const runNotify = (notif) => {
+            try {
+                const n = require(notif);
+                n.notify(title, body, data)
+                    .then(() => {
+                        if (!--remaining)
+                            resolve();
+                    }).catch(err => {
+                        console.error(err);
+                        if (!--remaining)
+                            resolve();
+                    });
+            } catch (err) {
+                console.error("failed to run notification", err);
+                if (!--remaining)
+                    resolve();
             }
+        };
+
+        readdir("notifications").then(files => {
+            let promises = [];
+            for (let idx = 0; idx < files.length; ++idx) {
+                promises.push(stat(`notifications/${files[idx]}`));
+            }
+            Promise.all(promises).then(stats => {
+                let torun = [];
+                for (let idx = 0; idx < files.length; ++idx) {
+                    if (stats[idx].isDirectory() || (stats[idx].isFile() && files[idx].substr(-3) == ".js")) {
+                        torun.push(`../notifications/${files[idx]}`);
+                    }
+                }
+                remaining = torun.length;
+                if (!torun) {
+                    resolve();
+                } else {
+                    for (let idx = 0; idx < torun.length; ++idx) {
+                        runNotify(torun[idx]);
+                    }
+                }
+            }).catch(err => {
+                console.error("failed to stat notifications", err);
+                reject();
+            });
         }).catch(err => {
-            console.error("failed to stat notifications", err);
+            console.error("failed to read notifications", err);
+            reject();
         });
-    }).catch(err => {
-        console.error("failed to read notifications", err);
     });
 }
 
 function compare(name, url, $, cfg)
 {
-    const html = ($ && $.html()) || null;
-    if (!html) {
-        if (cfg.verbose)
-            console.error("no data");
-        notify("error", `no data for ${name}`);
-        return;
-    }
-    const page = confpages.get(name);
-    if (!page) {
-        // assume not set yet
-        if (cfg.verbose) {
-            console.log("page doesn't exist, saving...");
+    return new Promise((resolve, reject) => {
+        const html = ($ && $.html()) || null;
+        if (!html) {
+            if (cfg.verbose)
+                console.error("no data");
+            notify("error", `no data for ${name}`).then(() => {
+                resolve();
+            }).catch(err => {
+                reject(err);
+            });
+            return;
         }
-        confpages.set(name, html);
-    } else {
-        if (cfg.verbose) {
-            console.log("html", html);
-            console.log("previous", page);
-        }
-        const changed = page != html;
-        if (changed || cfg.notify) {
-            const diff = jsdiff.diffLines(page, html);
-            let ret = "";
-            for (let idx = 0; idx < diff.length; ++idx) {
-                const d = diff[idx];
-                if (d.added)
-                    ret += "+ " + d.value;
-                else if (d.removed)
-                    ret += "- " + d.value;
-            }
+        const page = confpages.get(name);
+        if (!page) {
+            // assume not set yet
             if (cfg.verbose) {
-                console.log("changed:");
-                console.log(ret);
+                console.log("page doesn't exist, saving...");
             }
-            notify(`${name} changed`, `${name} has changed: ${url.url}\n` + ret, { cfg: cfg, url: url });
-            if (changed)
-                confpages.set(name, html);
-        } else if (cfg.verbose) {
-            console.log("no changes");
+            confpages.set(name, html);
+            resolve();
+        } else {
+            if (cfg.verbose) {
+                console.log("html", html);
+                console.log("previous", page);
+            }
+            let notified = false;
+            const changed = page != html;
+            if (changed || cfg.notify) {
+                const diff = jsdiff.diffLines(page, html);
+                let ret = "";
+                for (let idx = 0; idx < diff.length; ++idx) {
+                    const d = diff[idx];
+                    if (d.added)
+                        ret += "+ " + d.value;
+                    else if (d.removed)
+                        ret += "- " + d.value;
+                }
+                if (cfg.verbose) {
+                    console.log("changed:");
+                    console.log(ret);
+                }
+                if (changed)
+                    confpages.set(name, html);
+                notify(`${name} changed`, `${name} has changed: ${url.url}\n` + ret, { cfg: cfg, url: url }).then(() => {
+                    resolve();
+                }).catch(err => {
+                    reject(err);
+                });
+                return;
+            } else if (cfg.verbose) {
+                console.log("no changes");
+            }
+            resolve();
         }
-    }
+    });
 }
 
 function run(name, url, cfg) {
@@ -115,11 +153,18 @@ function run(name, url, cfg) {
                     console.error("invalid selector");
                 }
             }
-            compare(name, url, $, cfg);
-            resolve();
+            compare(name, url, $, cfg)
+                .then(() => {
+                    resolve();
+                }).catch(() => {
+                    reject();
+                });
         }).catch((err) => {
-            notify("error", err.message);
-            reject(err);
+            notify("error", err.message).then(() => {
+                resolve();
+            }).catch(err => {
+                reject(err);
+            });
         });
     });
 }
