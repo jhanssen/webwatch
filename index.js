@@ -23,10 +23,12 @@ function syntax()
 }
 
 const handlers = {
+    // should be first since other options (such as --show and --remove)
+    // might be interpreted as options to --cfg
+    cfg: () => require("./bin/cfg"),
     add: () => require("./bin/add"),
-    show: () => require("./bin/show"),
     remove: () => require("./bin/remove"),
-    cfg: () => require("./bin/cfg")
+    show: () => require("./bin/show")
 };
 
 if (argv.help) {
