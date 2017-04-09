@@ -19,6 +19,7 @@ function configure(argv)
         app: app,
         user: user
     };
+    console.log("pushover configured");
     conf.set("notifications", notifs);
 }
 

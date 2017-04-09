@@ -32,5 +32,6 @@ module.exports = argv => {
         url: url,
         selector: sel
     };
+    console.log(`added ${name}`);
     conf.set("urls", urls);
 };

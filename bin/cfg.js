@@ -7,8 +7,11 @@ module.exports = argv => {
     if (notification) {
         try {
             const n = require(`../notifications/${notification}`);
-            if (n)
+            if (n) {
                 n.cfg(argv);
+            } else {
+                console.error(`failed to configure notification ${notification}`);
+            }
         } catch (e) {
             console.error("couldn't find notification");
         }

@@ -17,5 +17,6 @@ module.exports = argv => {
         return;
     }
     delete urls[name];
+    console.log(`removed ${name}`);
     conf.set("urls", urls);
 };
