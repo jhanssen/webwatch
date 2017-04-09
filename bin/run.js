@@ -91,7 +91,13 @@ function compare(name, url, $, cfg)
 function run(name, url, cfg) {
     request({ uri: url.url, transform: ((html) => { return cheerio.load(html); }) }).then($ => {
         if (url.selector) {
-            $ = $(url.selector);
+            if (typeof url.selector === "string") {
+                $ = $(url.selector);
+            } else if (url.selector instanceof Array) {
+                $ = $(...url.selector);
+            } else {
+                console.error("invalid selector");
+            }
         }
         compare(name, url, $, cfg);
     }).catch((err) => {
