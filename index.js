@@ -36,6 +36,7 @@ if (argv.help) {
     for (let k in handlers) {
         if (k in argv) {
             handlers[k](argv);
+            ran = true;
             break;
         }
     }
