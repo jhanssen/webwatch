@@ -10,7 +10,7 @@ Uses [Cheerio](https://github.com/cheeriojs/cheerio) to parse HTML and [jsdiff](
 Supported notification mechanisms
 * [Pushover](https://pushover.net/) using [pushover-notifications](https://github.com/qbit/node-pushover)
 
-# usage
+### usage
 
 #### adding url
 ```
@@ -22,12 +22,15 @@ webwatch --add --url=http://www.google.com --name=Google --selector="#viewport"
 webwatch --remove --name=Google
 ```
 
+#### configuring pushover
+```
+webwatch --cfg --notification=pushover --app=<app key> --user=<user key>
+```
+
 #### running detection
 ```
 webwatch
 ```
 
-#### configuring pushover
-```
-webwatch --cfg --notification=pushover --app=<app key> --user=<user key>
-```
+#### scheduling
+use your operating scheduling mechanism, such as ```crontab``` on unix-like systems.
