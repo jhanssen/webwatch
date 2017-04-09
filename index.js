@@ -3,13 +3,6 @@
 "use strict";
 
 const minimist = require("minimist");
-const request = require("request");
-const cheerio = require("cheerio");
-const Configstore = require("configstore");
-
-const conf = new Configstore("webwatch-cfg");
-const urls = new Configstore("webwatch-urls");
-
 const argv = minimist(process.argv.slice(2));
 
 function syntax()
@@ -24,9 +17,7 @@ function syntax()
     console.log("  --show: show watched urls");
     console.log("    --name=value (optional): name to show");
     console.log("  --cfg: configure webwatch");
-    console.log("    --pushover: configure pushover");
-    console.log("      --user=value (required): user key");
-    console.log("      --app=value (required): application key");
+    console.log("    --notification=value: configure notification");
 }
 
 const handlers = {

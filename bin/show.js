@@ -1,5 +1,7 @@
 /*global process,require,module*/
 
+"use strict";
+
 const Configstore = require("configstore");
 const conf = new Configstore("webwatch-urls");
 

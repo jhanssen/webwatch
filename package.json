@@ -26,8 +26,10 @@
   "dependencies": {
     "cheerio": "^0.22.0",
     "configstore": "^3.0.0",
+    "es6-promisify": "^5.0.0",
     "minimist": "^1.2.0",
     "pushover-notifications": "^0.2.4",
-    "request": "^2.81.0"
+    "request": "^2.81.0",
+    "request-promise-native": "^1.0.3"
   }
 }

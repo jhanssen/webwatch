@@ -1,5 +1,7 @@
 /*global process,require,module*/
 
+"use strict";
+
 const Configstore = require("configstore");
 const conf = new Configstore("webwatch-urls");
 
@@ -17,9 +19,18 @@ module.exports = argv => {
         console.error("name already exists (use --force to overwrite)");
         return;
     }
+    let sel;
+    if (selector) {
+        try {
+            sel = JSON.parse(selector);
+        } catch (e) {
+            if (e instanceof SyntaxError && typeof selector === "string")
+                sel = selector;
+        }
+    }
     urls[name] = {
         url: url,
-        selector: selector
+        selector: sel
     };
     conf.set("urls", urls);
 };
