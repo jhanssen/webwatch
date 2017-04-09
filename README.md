@@ -33,4 +33,4 @@ webwatch
 ```
 
 #### scheduling
-use your operating scheduling mechanism, such as ```crontab``` on unix-like systems.
+use your operating system scheduling mechanism, such as ```crontab``` on unix-like systems.
