@@ -13,6 +13,21 @@ const Configstore = require("configstore");
 const confurls = new Configstore("webwatch-urls");
 const confpages = new Configstore("webwatch-pages");
 
+const cache = {
+    _cache: {},
+    get: function(url) {
+        return new Promise((resolve, reject) => {
+            if (url in cache._cache) {
+                resolve(cache._cache[url]);
+                return;
+            }
+            request({ uri: url.url, transform: ((html) => { return cheerio.load(html); }) })
+                .then($ => { cache._cache[url] = $; resolve($); })
+                .catch(err => { reject(err); });
+        });
+    }
+};
+
 function notify(title, body, data)
 {
     const runNotify = notif => {
@@ -89,7 +104,7 @@ function compare(name, url, $, cfg)
 }
 
 function run(name, url, cfg) {
-    request({ uri: url.url, transform: ((html) => { return cheerio.load(html); }) }).then($ => {
+    cache.get(url).then($ => {
         if (url.selector) {
             if (typeof url.selector === "string") {
                 $ = $(url.selector);
