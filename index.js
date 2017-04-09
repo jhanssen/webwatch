@@ -23,10 +23,10 @@ function syntax()
 }
 
 const handlers = {
-    add: require("./bin/add"),
-    show: require("./bin/show"),
-    remove: require("./bin/remove"),
-    cfg: require("./bin/cfg")
+    add: () => require("./bin/add"),
+    show: () => require("./bin/show"),
+    remove: () => require("./bin/remove"),
+    cfg: () => require("./bin/cfg")
 };
 
 if (argv.help) {
@@ -35,7 +35,7 @@ if (argv.help) {
     let ran = false;
     for (let k in handlers) {
         if (k in argv) {
-            handlers[k](argv);
+            handlers[k]()(argv);
             ran = true;
             break;
         }
