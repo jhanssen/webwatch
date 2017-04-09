@@ -31,7 +31,7 @@ const cache = {
 function notify(title, body, data)
 {
     return new Promise((resolve, reject) => {
-        let remaining = 0;
+        let total, remaining, rejections = 0;
         const runNotify = (notif) => {
             try {
                 const n = require(notif);
@@ -40,14 +40,22 @@ function notify(title, body, data)
                         if (!--remaining)
                             resolve();
                     }).catch(err => {
-                        console.error(err);
-                        if (!--remaining)
+                        //console.error(err);
+                        ++rejections;
+                        if (!--remaining) {
+                            if (rejections == total)
+                                console.log("all notifications rejected. at least one needs to be configured.");
                             resolve();
+                        }
                     });
             } catch (err) {
                 console.error("failed to run notification", err);
-                if (!--remaining)
+                ++rejections;
+                if (!--remaining) {
+                    if (rejections == total)
+                        console.log("all notifications rejected. at least one needs to be configured.");
                     resolve();
+                }
             }
         };
 
@@ -66,7 +74,7 @@ function notify(title, body, data)
                 if (!torun.length) {
                     resolve();
                 } else {
-                    remaining = torun.length;
+                    total = remaining = torun.length;
                     for (let idx = 0; idx < torun.length; ++idx) {
                         runNotify(torun[idx]);
                     }
