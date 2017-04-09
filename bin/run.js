@@ -46,13 +46,14 @@ function notify(title, body, data)
 
 function compare(name, url, $, cfg)
 {
-    if (!$) {
-        console.error("no data");
+    const html = ($ && $.html()) || null;
+    if (!html) {
+        if (cfg.verbose)
+            console.error("no data");
         notify("error", `no data for ${name}`);
         return;
     }
     const page = confpages.get(name);
-    const html = $.html();
     if (!page) {
         // assume not set yet
         if (cfg.verbose) {
