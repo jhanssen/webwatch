@@ -18,11 +18,11 @@ const cache = {
     get: function(url) {
         return new Promise((resolve, reject) => {
             if (url in cache._cache) {
-                resolve(cache._cache[url]);
+                resolve(cheerio.load(cache._cache[url]));
                 return;
             }
-            request({ uri: url.url, transform: ((html) => { return cheerio.load(html); }) })
-                .then($ => { cache._cache[url] = $; resolve($); })
+            request({ uri: url.url })
+                .then(body => { cache._cache[url] = body; resolve(cheerio.load(body)); })
                 .catch(err => { reject(err); });
         });
     }
