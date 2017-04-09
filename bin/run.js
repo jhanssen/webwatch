@@ -104,19 +104,23 @@ function compare(name, url, $, cfg)
 }
 
 function run(name, url, cfg) {
-    cache.get(url).then($ => {
-        if (url.selector) {
-            if (typeof url.selector === "string") {
-                $ = $(url.selector);
-            } else if (url.selector instanceof Array) {
-                $ = $(...url.selector);
-            } else {
-                console.error("invalid selector");
+    return new Promise((resolve, reject) => {
+        cache.get(url).then($ => {
+            if (url.selector) {
+                if (typeof url.selector === "string") {
+                    $ = $(url.selector);
+                } else if (url.selector instanceof Array) {
+                    $ = $(...url.selector);
+                } else {
+                    console.error("invalid selector");
+                }
             }
-        }
-        compare(name, url, $, cfg);
-    }).catch((err) => {
-        notify("error", err.message);
+            compare(name, url, $, cfg);
+            resolve();
+        }).catch((err) => {
+            notify("error", err.message);
+            reject(err);
+        });
     });
 }
 
@@ -142,8 +146,17 @@ module.exports = argv => {
             console.error("no such url");
         }
     } else {
-        for (let k in urls) {
-            run(k, urls[k], cfg);
-        }
+        let idx = 0;
+        const keys = Object.keys(urls);
+        const runNext = () => {
+            if (idx >= keys.length)
+                return;
+            const key = keys[idx];
+            ++idx;
+            run(key, urls[key], cfg)
+                .then(() => { runNext(); })
+                .catch(() => { runNext(); });
+        };
+        runNext();
     }
 };
