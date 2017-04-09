@@ -1,5 +1,9 @@
 # webwatch
-Watch webpages
+Watch webpages for changes.
+
+```
+npm install -g webwatch
+```
 
 Uses [Cheerio](https://github.com/cheeriojs/cheerio) to parse HTML and [jsdiff](https://github.com/kpdecker/jsdiff) to generate diffs.
 
