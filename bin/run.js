@@ -17,12 +17,12 @@ const cache = {
     _cache: {},
     get: function(url) {
         return new Promise((resolve, reject) => {
-            if (url in cache._cache) {
-                resolve(cheerio.load(cache._cache[url]));
+            if (url.url in cache._cache) {
+                resolve(cheerio.load(cache._cache[url.url]));
                 return;
             }
             request({ uri: url.url })
-                .then(body => { cache._cache[url] = body; resolve(cheerio.load(body)); })
+                .then(body => { cache._cache[url.url] = body; resolve(cheerio.load(body)); })
                 .catch(err => { reject(err); });
         });
     }
