@@ -63,10 +63,10 @@ function notify(title, body, data)
                         torun.push(`../notifications/${files[idx]}`);
                     }
                 }
-                remaining = torun.length;
-                if (!torun) {
+                if (!torun.length) {
                     resolve();
                 } else {
+                    remaining = torun.length;
                     for (let idx = 0; idx < torun.length; ++idx) {
                         runNotify(torun[idx]);
                     }
