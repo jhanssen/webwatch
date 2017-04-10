@@ -1,6 +1,6 @@
 {
   "name": "webwatch",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "watch web pages",
   "main": "index.js",
   "scripts": {
