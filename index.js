@@ -23,7 +23,7 @@ function syntax()
 }
 
 const handlers = {
-    // should be first since other options (such as --show and --remove)
+    // cfg should be first since other options (such as --show and --remove)
     // might be interpreted as options to --cfg
     cfg: () => require("./bin/cfg"),
     add: () => require("./bin/add"),
