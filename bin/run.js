@@ -44,7 +44,7 @@ function notify(title, body, data)
                         ++rejections;
                         if (!--remaining) {
                             if (rejections == total)
-                                console.log("all notifications rejected. at least one needs to be configured.");
+                                console.error("all notifications rejected. at least one needs to be configured.");
                             resolve();
                         }
                     });
@@ -53,7 +53,7 @@ function notify(title, body, data)
                 ++rejections;
                 if (!--remaining) {
                     if (rejections == total)
-                        console.log("all notifications rejected. at least one needs to be configured.");
+                        console.error("all notifications rejected. at least one needs to be configured.");
                     resolve();
                 }
             }

@@ -21,13 +21,13 @@ function configure(argv)
         if (notifs.pushover) {
             log(notifs.pushover);
         } else {
-            console.log("no pushover config");
+            console.error("no pushover config");
         }
         return;
     }
     if (argv.remove) {
         if (!notifs.pushover) {
-            console.log("no pushover config");
+            console.error("no pushover config");
             return;
         }
         delete notifs.pushover;
@@ -92,7 +92,7 @@ function notify(title, body, data)
         p.send(msg, (err, result) => {
             if (err) {
                 if (verbose)
-                    console.log("pushover error", err);
+                    console.error("pushover error", err);
                 reject(err);
                 return;
             }
