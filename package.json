@@ -27,6 +27,7 @@
   },
   "homepage": "https://github.com/jhanssen/webwatch#readme",
   "dependencies": {
+    "app-root-path": "^2.0.1",
     "cheerio": "^0.22.0",
     "configstore": "^3.0.0",
     "diff": "^3.2.0",

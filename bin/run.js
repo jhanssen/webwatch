@@ -6,6 +6,7 @@ const request = require("request-promise-native");
 const cheerio = require("cheerio");
 const promisify = require("es6-promisify");
 const jsdiff = require("diff");
+const approot = require("app-root-path");
 const fs = require("fs");
 const readdir = promisify(fs.readdir);
 const stat = promisify(fs.stat);
@@ -59,16 +60,17 @@ function notify(title, body, data)
             }
         };
 
-        readdir("notifications").then(files => {
+        const notifdir = approot.resolve("/notifications");
+        readdir(notifdir).then(files => {
             let promises = [];
             for (let idx = 0; idx < files.length; ++idx) {
-                promises.push(stat(`notifications/${files[idx]}`));
+                promises.push(stat(`${notifdir}/${files[idx]}`));
             }
             Promise.all(promises).then(stats => {
                 let torun = [];
                 for (let idx = 0; idx < files.length; ++idx) {
                     if (stats[idx].isDirectory() || (stats[idx].isFile() && files[idx].substr(-3) == ".js")) {
-                        torun.push(`../notifications/${files[idx]}`);
+                        torun.push(`${notifdir}/${files[idx]}`);
                     }
                 }
                 if (!torun.length) {

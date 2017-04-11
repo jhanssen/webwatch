@@ -2,11 +2,14 @@
 
 "use strict";
 
+const approot = require("app-root-path");
+
 module.exports = argv => {
     const notification = argv.notification;
+    const notifdir = approot.resolve("/notifications");
     if (notification) {
         try {
-            const n = require(`../notifications/${notification}`);
+            const n = require(`${notifdir}/${notification}`);
             if (n) {
                 n.cfg(argv);
             } else {
