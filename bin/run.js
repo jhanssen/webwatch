@@ -92,11 +92,10 @@ function notify(title, body, data)
     });
 }
 
-function compare(name, url, $, cfg)
+function compare(name, url, html, cfg)
 {
     return new Promise((resolve, reject) => {
-        const html = ($ && $.html()) || null;
-        if (!html) {
+        if (!html.length) {
             if (cfg.verbose)
                 console.error("no data");
             notify("error", `no data for ${name}`).then(() => {
@@ -154,16 +153,24 @@ function compare(name, url, $, cfg)
 function run(name, url, cfg) {
     return new Promise((resolve, reject) => {
         cache.get(url.url).then($ => {
+            let selected, html = "";
             if (url.selector) {
                 if (typeof url.selector === "string") {
-                    $ = $(url.selector);
+                    selected = $(url.selector);
                 } else if (url.selector instanceof Array) {
-                    $ = $(...url.selector);
+                    selected = $(...url.selector);
                 } else {
                     console.error("invalid selector");
                 }
             }
-            compare(name, url, $, cfg)
+            if (selected) {
+                selected.each((i, elem) => {
+                    html += $(elem).html();
+                });
+            } else {
+                html = $.html();
+            }
+            compare(name, url, html, cfg)
                 .then(() => {
                     resolve();
                 }).catch(() => {
