@@ -32,7 +32,8 @@ const cache = {
                     .then(body => {
                         cache._cache[key] = body; resolve(cheerio.load(body));
                         return horseman.close();
-                    });
+                    })
+                    .catch(err => { reject(err); });
             } else {
                 request({ uri: url })
                     .then(body => {
