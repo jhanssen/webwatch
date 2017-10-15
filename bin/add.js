@@ -9,6 +9,7 @@ module.exports = argv => {
     const name = argv.name;
     const url = argv.url;
     const selector = argv.selector;
+    const phantom = ("phantom" in argv);
     const force = argv.force;
     if (!name || !url) {
         console.error("needs a name and url");
@@ -30,7 +31,8 @@ module.exports = argv => {
     }
     urls[name] = {
         url: url,
-        selector: sel
+        selector: sel,
+        phantom: phantom
     };
     console.log(`added ${name}`);
     conf.set("urls", urls);

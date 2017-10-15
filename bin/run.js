@@ -13,18 +13,33 @@ const stat = promisify(fs.stat);
 const Configstore = require("configstore");
 const confurls = new Configstore("webwatch-urls");
 const confpages = new Configstore("webwatch-pages");
+const Horseman = require('node-horseman');
 
 const cache = {
     _cache: {},
-    get: function(url) {
+    get: function(url, phantom) {
+        const key = url + (phantom ? "-phantom" : "");
         return new Promise((resolve, reject) => {
-            if (url in cache._cache) {
-                resolve(cheerio.load(cache._cache[url]));
+            if (key in cache._cache) {
+                resolve(cheerio.load(cache._cache[key]));
                 return;
             }
-            request({ uri: url })
-                .then(body => { cache._cache[url] = body; resolve(cheerio.load(body)); })
-                .catch(err => { reject(err); });
+            if (phantom) {
+                const horseman = new Horseman();
+                horseman
+                    .open(url)
+                    .html()
+                    .then(body => {
+                        cache._cache[key] = body; resolve(cheerio.load(body));
+                        return horseman.close();
+                    });
+            } else {
+                request({ uri: url })
+                    .then(body => {
+                        cache._cache[key] = body; resolve(cheerio.load(body));
+                    })
+                    .catch(err => { reject(err); });
+            }
         });
     }
 };
@@ -152,7 +167,7 @@ function compare(name, url, html, cfg)
 
 function run(name, url, cfg) {
     return new Promise((resolve, reject) => {
-        cache.get(url.url).then($ => {
+        cache.get(url.url, url.phantom).then($ => {
             let selected, html = "";
             if (url.selector) {
                 if (typeof url.selector === "string") {
