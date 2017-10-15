@@ -33,7 +33,7 @@ const cache = {
                         cache._cache[key] = body; resolve(cheerio.load(body));
                         return horseman.close();
                     })
-                    .catch(err => { reject(err); });
+                    .catch(err => { reject(err); return horseman.close(); });
             } else {
                 request({ uri: url })
                     .then(body => {
