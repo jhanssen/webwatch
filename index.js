@@ -15,7 +15,7 @@ function syntax()
     console.log("    --name=value (required): name to register as");
     console.log("    --selector=value (optional): css selector to watch");
     console.log("    --phantom (optional): process html in phantomjs before querying selectors");
-    console.log("    --delay=value (optional): allow page to settle before processing html");
+    console.log("      --delay=value (optional): allow page to settle before processing html");
     console.log("  --remove: remove a url");
     console.log("    --name=value (required): name to remove");
     console.log("  --show: show watched urls");

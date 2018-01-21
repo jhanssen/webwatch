@@ -29,29 +29,29 @@ const cache = {
     get: function(url) {
         const key = url.url + (url.phantom ? "-phantom" : "");
         return new Promise((resolve, reject) => {
-            sleep(url.delay).then(() => {
-                if (key in cache._cache) {
-                    resolve(cheerio.load(cache._cache[key]));
-                    return;
-                }
-                if (url.phantom) {
-                    const horseman = new Horseman();
+            if (key in cache._cache) {
+                resolve(cheerio.load(cache._cache[key]));
+                return;
+            }
+            if (url.phantom) {
+                const horseman = new Horseman();
+                horseman.open(url.url);
+                sleep(url.delay).then(() => {
                     horseman
-                        .open(url.url)
                         .html()
                         .then(body => {
                             cache._cache[key] = body; resolve(cheerio.load(body));
                             return horseman.close();
                         })
                         .catch(err => { reject(err); return horseman.close(); });
-                } else {
-                    request({ uri: url.url })
-                        .then(body => {
-                            cache._cache[key] = body; resolve(cheerio.load(body));
-                        })
-                        .catch(err => { reject(err); });
-                }
-            });
+                });
+            } else {
+                request({ uri: url.url })
+                    .then(body => {
+                        cache._cache[key] = body; resolve(cheerio.load(body));
+                    })
+                    .catch(err => { reject(err); });
+            }
         });
     }
 };
