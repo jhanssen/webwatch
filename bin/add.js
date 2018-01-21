@@ -9,6 +9,7 @@ module.exports = argv => {
     const name = argv.name;
     const url = argv.url;
     const selector = argv.selector;
+    const delay = argv.delay;
     const phantom = ("phantom" in argv);
     const force = argv.force;
     if (!name || !url) {
@@ -32,7 +33,8 @@ module.exports = argv => {
     urls[name] = {
         url: url,
         selector: sel,
-        phantom: phantom
+        phantom: phantom,
+        delay: delay
     };
     console.log(`added ${name}`);
     conf.set("urls", urls);

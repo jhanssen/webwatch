@@ -1,4 +1,4 @@
-/*global process,require,module*/
+/*global process,require,module,setTimeout*/
 
 "use strict";
 
@@ -15,32 +15,43 @@ const confurls = new Configstore("webwatch-urls");
 const confpages = new Configstore("webwatch-pages");
 const Horseman = require('node-horseman');
 
+function sleep(time)
+{
+    if (!time)
+        return Promise.resolve();
+    return new Promise((resolve, reject) => {
+        setTimeout(resolve, time);
+    });
+}
+
 const cache = {
     _cache: {},
-    get: function(url, phantom) {
-        const key = url + (phantom ? "-phantom" : "");
+    get: function(url) {
+        const key = url.url + (url.phantom ? "-phantom" : "");
         return new Promise((resolve, reject) => {
-            if (key in cache._cache) {
-                resolve(cheerio.load(cache._cache[key]));
-                return;
-            }
-            if (phantom) {
-                const horseman = new Horseman();
-                horseman
-                    .open(url)
-                    .html()
-                    .then(body => {
-                        cache._cache[key] = body; resolve(cheerio.load(body));
-                        return horseman.close();
-                    })
-                    .catch(err => { reject(err); return horseman.close(); });
-            } else {
-                request({ uri: url })
-                    .then(body => {
-                        cache._cache[key] = body; resolve(cheerio.load(body));
-                    })
-                    .catch(err => { reject(err); });
-            }
+            sleep(url.delay).then(() => {
+                if (key in cache._cache) {
+                    resolve(cheerio.load(cache._cache[key]));
+                    return;
+                }
+                if (url.phantom) {
+                    const horseman = new Horseman();
+                    horseman
+                        .open(url.url)
+                        .html()
+                        .then(body => {
+                            cache._cache[key] = body; resolve(cheerio.load(body));
+                            return horseman.close();
+                        })
+                        .catch(err => { reject(err); return horseman.close(); });
+                } else {
+                    request({ uri: url.url })
+                        .then(body => {
+                            cache._cache[key] = body; resolve(cheerio.load(body));
+                        })
+                        .catch(err => { reject(err); });
+                }
+            });
         });
     }
 };
@@ -168,7 +179,7 @@ function compare(name, url, html, cfg)
 
 function run(name, url, cfg) {
     return new Promise((resolve, reject) => {
-        cache.get(url.url, url.phantom).then($ => {
+        cache.get(url).then($ => {
             let selected, html = "";
             if (url.selector) {
                 if (typeof url.selector === "string") {
