@@ -12,6 +12,10 @@ module.exports = argv => {
     const delay = argv.delay;
     const phantom = ("phantom" in argv);
     const force = argv.force;
+    if (delay && !phantom) {
+        console.error("delay only supported when using --phantom");
+        return;
+    }
     if (!name || !url) {
         console.error("needs a name and url");
         return;
