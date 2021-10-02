@@ -24,6 +24,11 @@ function sleep(time)
     });
 }
 
+function errorWithUrl(error, url)
+{
+    return new Error(`${error.message} at ${url}`);
+}
+
 const cache = {
     _cache: {},
     get: function(url) {
@@ -43,14 +48,14 @@ const cache = {
                             cache._cache[key] = body; resolve(cheerio.load(body));
                             return horseman.close();
                         })
-                        .catch(err => { reject(err); return horseman.close(); });
+                        .catch(err => { reject(errorWithUrl(err, url.url)); return horseman.close(); });
                 });
             } else {
                 request({ uri: url.url })
                     .then(body => {
                         cache._cache[key] = body; resolve(cheerio.load(body));
                     })
-                    .catch(err => { reject(err); });
+                    .catch(err => { reject(errorWithUrl(err, url.url)); });
             }
         });
     }
@@ -128,7 +133,7 @@ function compare(name, url, html, cfg)
             notify("error", `no data for ${name}`).then(() => {
                 resolve();
             }).catch(err => {
-                reject(err);
+                reject(errorWithUrl(err, url.url));
             });
             return;
         }
@@ -166,7 +171,7 @@ function compare(name, url, html, cfg)
                 notify(`${name} changed`, `${name} has changed: ${url.url}\n` + ret, { cfg: cfg, url: url }).then(() => {
                     resolve();
                 }).catch(err => {
-                    reject(err);
+                    reject(errorWithUrl(err, url.url));
                 });
                 return;
             } else if (cfg.verbose) {
@@ -207,7 +212,7 @@ function run(name, url, cfg) {
             notify("error", err.message).then(() => {
                 resolve();
             }).catch(err => {
-                reject(err);
+                reject(errorWithUrl(err, url.url));
             });
         });
     });
